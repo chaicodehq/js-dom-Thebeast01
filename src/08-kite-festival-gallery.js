@@ -79,21 +79,101 @@
  *   // => 1 (only red kites shown)
  */
 export function renderKiteCard(kite) {
-  // Your code here
+    if (
+        !kite ||
+        typeof kite.name !== "string" ||
+        typeof kite.color !== "string" ||
+        typeof kite.size !== "string" ||
+        typeof kite.maker !== "string" ||
+        typeof kite.image !== "string"
+    ) {
+        return null;
+    }
+
+    const div = document.createElement("div");
+    div.className = "kite-card";
+
+    const img = document.createElement("img");
+    img.src = kite.image;
+    img.alt = kite.name;
+
+    const h3 = document.createElement("h3");
+    h3.className = "kite-name";
+    h3.textContent = kite.name;
+
+    const maker = document.createElement("p");
+    maker.className = "kite-maker";
+    maker.textContent = `by ${kite.maker}`;
+
+    const info = document.createElement("p");
+    info.className = "kite-info";
+    info.textContent = `${kite.size} - ${kite.color}`;
+
+    div.appendChild(img);
+    div.appendChild(h3);
+    div.appendChild(maker);
+    div.appendChild(info);
+
+    return div;
 }
 
 export function renderGallery(container, kites) {
-  // Your code here
+    if (!container || !Array.isArray(kites)) return -1;
+
+    container.innerHTML = "";
+
+    let count = 0;
+
+    for (const kite of kites) {
+        const card = renderKiteCard(kite);
+        if (card) {
+            container.appendChild(card);
+            count++;
+        }
+    }
+
+    return count;
 }
 
 export function filterKites(container, kites, filterFn) {
-  // Your code here
+    if (!container || !Array.isArray(kites) || typeof filterFn !== "function") {
+        return -1;
+    }
+
+    const filtered = kites.filter(filterFn);
+    return renderGallery(container, filtered);
 }
 
-export function sortAndRender(container, kites, sortField, order) {
-  // Your code here
+export function sortAndRender(container, kites, sortField, order = "asc") {
+    if (!container || !Array.isArray(kites)) return [];
+
+    const sorted = [...kites].sort((a, b) => {
+        const valA = a?.[sortField];
+        const valB = b?.[sortField];
+
+        if (valA == null && valB == null) return 0;
+        if (valA == null) return order === "asc" ? -1 : 1;
+        if (valB == null) return order === "asc" ? 1 : -1;
+
+        if (valA < valB) return order === "asc" ? -1 : 1;
+        if (valA > valB) return order === "asc" ? 1 : -1;
+        return 0;
+    });
+
+    renderGallery(container, sorted);
+    return sorted;
 }
 
 export function renderEmptyState(container, message) {
-  // Your code here
+    if (!container) return false;
+
+    if (container.children.length === 0) {
+        const p = document.createElement("p");
+        p.className = "empty-state";
+        p.textContent = message;
+        container.appendChild(p);
+        return true;
+    }
+
+    return false;
 }
